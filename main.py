@@ -2,7 +2,6 @@ import math
 import random
 import matplotlib.pyplot as plt
 import copy
-from sympy import *
 
 with open("input.txt", "r") as file:
     input = file.readline
@@ -25,9 +24,6 @@ with open("input.txt", "r") as file:
 
 population: list[list[int]] = []
 
-x = symbols('x')
-f = a * x ** 2 + b * x + c
-max_point_y = maximum(f, x, Interval(left_limit, right_limit))
 
 def f(x: float) -> float:
     global a, b, c
@@ -36,6 +32,9 @@ def f(x: float) -> float:
         return 0
     y = a * x ** 2 + b * x + c
     return y
+
+max_point_y = f(-b/(2*a))
+print(max_point_y)
 
 #   Numarul de biti pe care se face codificarea
 list_len: int = math.ceil(math.log2(right_limit - left_limit) + precision * math.log2(10))
@@ -199,21 +198,43 @@ with open("evolutie.txt", "w") as file:
         for i, val in enumerate(val_maxim):
             print(f"Generatia {i+1}: {val}\n")
 
+    # epsilon is used to make the plot look better
+    epsilon = (max_point_y - val_maxim[0])
+
     #plot the evolution of the maximum
-    plt.figure()
-    plt.ylim(0, int(max_point_y)+1)
-    plt.plot(val_maxim)
-    # plt.axhline(y=max_point_y, color='r', linestyle='-')
-    plt.xlabel("Generatia")
-    plt.ylabel("Valoarea maxima")
-    plt.show()
+    fig, axes = plt.subplots(nrows=3, ncols=1)
 
-    #plot the evolution of the average
-    plt.figure()
-    plt.ylim(0, int(max_point_y)+1)
-    plt.plot(val_mediu)
-    # plt.axhline(y=max_point_y, color='r', linestyle='-')
-    plt.xlabel("Generatia")
-    plt.ylabel("Valoarea medie")
-    plt.show()
+    # plt.ylim(val_maxim[0]-epsilon, max_point_y + epsilon)
+    # plt.plot(val_maxim)
+    # # plt.axhline(y=max_point_y, color='r', linestyle='-')
+    # plt.xlabel("Generatia")
+    # plt.ylabel("Valoarea maxima")
+    #
+    # #plot the evolution of the average
+    # plt.ylim(val_mediu[0] -epsilon, max_point_y + epsilon)
+    # plt.plot(val_mediu)
+    # # plt.axhline(y=max_point_y, color='r', linestyle='-')
+    # plt.xlabel("Generatia")
+    # plt.ylabel("Valoarea medie")
 
+    axes[0].plot(val_maxim)
+
+    # axes[0].set_xlabel('Generatia')
+    axes[0].set_ylabel('Val Max')
+
+    axes[1].plot(val_mediu)
+
+    # axes[1].set_xlabel('Generatia')
+    axes[1].set_ylabel('Val Mean')
+
+    axes[2].plot(val_maxim)
+    axes[2].plot(val_mediu)
+
+    axes[2].set_xlabel('Generatia')
+    axes[2].set_ylabel('BOTH')
+
+    # Adjust spacing between subplots
+    plt.tight_layout()
+
+    # Display the plot
+    plt.show()
