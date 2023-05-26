@@ -23,9 +23,11 @@ The genetic algorithm follows the following steps:
 The following graphs illustrate the evolution of the maximum and average values over generations:
 
 With the elite individual:
+
 ![With the elite individual](resources/WithElite.png)
 
 Without the elite individual:
+
 ![Without the elite](resources/WithOUTElite.png)
 ## Getting Started
 
