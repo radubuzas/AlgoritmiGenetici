@@ -1,0 +1,46 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+*.egg-info/
+dist/
+build/
+*.log
+
+# IDE/Editor
+.idea/
+.vscode/
+
+# Dependency directories
+env/
+lib/
+node_modules/
+
+# Compiled files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Generated files
+*.pyo
+*.pyd
+*.class
+*.o
+*.ko
+*.a
+*.swp
+*.swo
+*.out
+*.log.*
+*.pid
+*.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+*.bak
+*.tmp
+*.tmp.*
