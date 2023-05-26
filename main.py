@@ -3,6 +3,14 @@ import random
 import matplotlib.pyplot as plt
 import copy
 
+E = None
+while E != True and E != False:
+    E = input("Cu sau fara element elitist? (y/n): ")
+    if E == "y":
+        E = True
+    elif E == "n":
+        E = False
+
 with open("input.txt", "r") as file:
     input = file.readline
     population_size: int = int(input())
@@ -11,11 +19,12 @@ with open("input.txt", "r") as file:
     left_limit: float = float(left_limit)
     right_limit: float = float(right_limit)
 
-    (a, b, c) = input().split()
+    (a, b, c, d_) = input().split()
 
     a: float = float(a)
     b: float = float(b)
     c: float = float(c)
+    d_: float = float(d_)
 
     precision: int = int(input())
     cross_over_probability: float = float(input())
@@ -26,15 +35,13 @@ population: list[list[int]] = []
 
 
 def f(x: float) -> float:
-    global a, b, c
+    global a, b, c, d
     global left_limit, right_limit
     if x > right_limit:
         return 0
-    y = a * x ** 2 + b * x + c
+    y = a * x ** 3 + b * x ** 2 + c * x + d_
     return y
 
-max_point_y = f(-b/(2*a))
-print(max_point_y)
 
 #   Numarul de biti pe care se face codificarea
 list_len: int = math.ceil(math.log2(right_limit - left_limit) + precision * math.log2(10))
@@ -43,7 +50,7 @@ d: float = (right_limit - left_limit) / (2**list_len)
 
 sub_intervals: list[float] = []
 for i in range(2**list_len + 1):
-    sub_intervals.append(a + i * d)
+    sub_intervals.append(left_limit + i * d)
 
 def binSearch(x: float, v: list) -> int:
     st = 1
@@ -70,6 +77,7 @@ def decode_individual(individual: list[int]) -> float:
     individual = int("".join([str(x) for x in individual]), 2)
     return sub_intervals[individual]
 
+
 def generate_population():
     global population, population_size, left_limit, right_limit
 
@@ -90,7 +98,9 @@ with open("evolutie.txt", "w") as file:
         print("Populatia initiala:\n")
         sum: int = 0
         maxim = f(decode_individual(population[0]))
-        fittest = copy.deepcopy(population[0])
+
+        if E:
+            fittest = copy.deepcopy(population[0])
         for i in range(population_size):
             x = decode_individual(population[i])
             if f(x) > maxim:
@@ -113,21 +123,26 @@ with open("evolutie.txt", "w") as file:
 
         print("\nDupa selectie:\n")
         new_population: list[list[int]] = []
-        for _ in range(population_size-1):
+        if E:
+            lim = population_size - 1
+        else:
+            lim = population_size
+        for _ in range(lim):
             r = random.uniform(0, 1)
             individ = binSearch(r, roulete)
             new_population.append(population[individ])
             print(f"u={r} selectam cromozomul {individ+1}\n")
 
         print("\nDupa selectie:\n")
-        for i in range(population_size-1):
+        for i in range(lim):
             x = decode_individual(new_population[i])
             print(f"\t{i + 1}: {''.join([str(x) for x in population[i]])}\tx=\t{x}\tf(x)= {f(x)}\n")
         # print(f"\t{i}: {''.join([str(x) for x in fittest])}\tx=\t{decode_individual(fittest)}\tf(x)= {f(decode_individual(fittest))}\n")
 
         print(f"\nProbabilitatea de incrucisare {cross_over_probability}:\n")
         to_cross_over: list[(int, list[int])]= []
-        for i in range(population_size-1):
+
+        for i in range(lim):
             r = random.uniform(0, 1)
             print(f"\t{i + 1}: {''.join([str(x) for x in population[i]])}\tu={r}")
             if r < cross_over_probability:
@@ -137,10 +152,10 @@ with open("evolutie.txt", "w") as file:
 
         if len(to_cross_over) % 2 and len(to_cross_over) > 1:
             break_point = random.randint(1, list_len-1)
-            temp = copy.deepcopy(to_cross_over[0][1][break_point:])
-            to_cross_over[0][1][break_point:] = copy.deepcopy(to_cross_over[1][1][break_point:])
-            to_cross_over[1][1][break_point:] = copy.deepcopy(to_cross_over[0][1][break_point:])
-            to_cross_over[2][1][break_point:] = copy.deepcopy(temp)
+            temp = copy.deepcopy(to_cross_over[0][1][:break_point])
+            to_cross_over[0][1][:break_point] = copy.deepcopy(to_cross_over[1][1][:break_point])
+            to_cross_over[1][1][:break_point] = copy.deepcopy(to_cross_over[2][1][:break_point])
+            to_cross_over[2][1][:break_point] = copy.deepcopy(temp)
 
         for i in range(0 + len(to_cross_over) % 2 * 3, len(to_cross_over), 2):
             break_point = random.randint(1, list_len-1)
@@ -148,15 +163,15 @@ with open("evolutie.txt", "w") as file:
                 f"Recombinare dintre cromozomul {to_cross_over[i][0]} si cromozomul {to_cross_over[i + 1][0]} la pozitia {break_point}:\n")
             print(f"\t{''.join([str(x) for x in to_cross_over[i][1]])}\t")
             print(f"{''.join([str(x) for x in to_cross_over[i + 1][1]])}\n")
-            temp = copy.deepcopy(to_cross_over[i][1][break_point:])
-            to_cross_over[i][1][break_point:] = copy.deepcopy(to_cross_over[i+1][1][break_point:])
-            to_cross_over[i+1][1][break_point:] = copy.deepcopy(temp)
+            temp = copy.deepcopy(to_cross_over[i][1][:break_point])
+            to_cross_over[i][1][:break_point] = copy.deepcopy(to_cross_over[i+1][1][:break_point])
+            to_cross_over[i+1][1][:break_point] = copy.deepcopy(temp)
             print("Rezultat:\n")
             print(f"\t{''.join([str(x) for x in to_cross_over[i][1]])}\t")
             print(f"{''.join([str(x) for x in to_cross_over[i + 1][1]])}\n")
 
         print("\nDupa incrucisare:\n")
-        for i in range(population_size-1):
+        for i in range(lim):
             x = decode_individual(new_population[i])
             print(f"\t{i + 1}: {''.join([str(x) for x in population[i]])}\tx=\t{x}\tf(x)= {f(x)}\n")
 
@@ -170,11 +185,12 @@ with open("evolutie.txt", "w") as file:
 
         print("\nDupa mutatie:\n")
 
-        for i in range(population_size-1):
+        for i in range(lim):
             x = decode_individual(new_population[i])
             print(f"\t{i + 1}: {''.join([str(x) for x in population[i]])}\tx=\t{x}\tf(x)= {f(x)}\n")
 
-        new_population.append(fittest)
+        if E:
+            new_population.append(fittest)
 
         print("Populatia finala:\n")
         for i in range(population_size):
@@ -191,15 +207,12 @@ with open("evolutie.txt", "w") as file:
             if f(x) > maxim:
                 maxim = f(x)
         val_maxim.append(maxim)
-
         val_mediu.append(sum/population_size)
 
-        print("Evoluția maximului:\n")
-        for i, val in enumerate(val_maxim):
-            print(f"Generatia {i+1}: {val}\n")
+    print("Evoluția maximului:\n")
+    for i, val in enumerate(val_maxim):
+        print(f"Generatia {i+1}: {val}\n")
 
-    # epsilon is used to make the plot look better
-    epsilon = (max_point_y - val_maxim[0])
 
     #plot the evolution of the maximum
     fig, axes = plt.subplots(nrows=3, ncols=1)
